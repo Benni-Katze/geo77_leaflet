@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <!-- set the charset -->
+ <meta charset="utf-8">
+ <!-- set make the map responsive -->
+ <meta http-equiv="X-UA-Compatible" content="IE=edge">
+ <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+ <meta name="mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <!-- set the title shown in the browser tab -->
+ <title>Bodenseehäfen</title>
+ <!-- Links to the leaflet CSS and JS -->
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+ <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+ <!-- Links to the Leaflet-Ruler Plugin -->
+ <link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />
+ <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+ <!-- External data  --> 
+ <script src="bodenseehaefen.js"></script>
+ <script src="vogelschutz.js"></script>
+ <!-- styles for elements html and body: fullscreen  -->
+ <style>
+  html, body {
+ 	 width: 100%;
+     height: 100%;
+	 padding: 0;
+	 margin: 0;
+  }
+ </style>	
+</head>
+<body>
+<a href="https://www.dsv.org/downloads/zehn-goldene-regeln/" target="_blank"
+   style="
+       font-size: 12px;
+	   position:absolute;
+       top:180px;
+       left:1085px;
+       z-index:1000;
+       background:gold;
+       color:black;
+       padding:5px 10px;
+       border-radius:6px;
+       text-decoration:none;
+       font-weight:plain;
+       font-family: 'Arial', sans-serif;  
+       box-shadow:0 2px 6px rgba(0,0,0,0.3);
+	   width:140px;       
+       text-align:left;
+   ">
+   ⚓ 10 Goldene Regeln<span style="margin-left:21px; display:inline-block;">für Wassersportler</span>  
+</a>
+ <!-- set the div element containing the map -->
+ <div id="mapid" style="width: 100%; height: 100%; padding: 0; margin: 0;"></div>
+  
+ <script>
+ 
+  // Create Leaflet map
+  var mymap = L.map('mapid').setView([47.62, 09.29], 10);
+  
+   
+  // Add basemaps
+  // basemap 1:
+  var osm_basemap = L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+	  attribution: '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(mymap);
+ 
+  // basemap 2:
+  var otm_basemap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+  attribution: '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+  }); 
+ 
+  // basemap 3:
+  var osmint_basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  });
+  
+  // basemap 4:
+  var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  });
+ 
+  // Basemap dictonary
+  var basemaps = {
+   "Open Street Map DE": osm_basemap,
+   "Open Topo Map": otm_basemap,
+   "Open Street Map INT": osmint_basemap,
+   "ESRI World Imagery": Esri_WorldImagery
+  };  
+   
+  var orangeMarker = {
+  radius: 5,
+  fillColor: "#ff0026",
+  color: "#000",
+  weight: 1,
+  opacity: 1,
+  fillOpacity: 1
+  };
+        
+  // Add popup function
+  function popUpFunction(feature, layer) {
+   var popupContent = "<b>Name: </b>"+feature.properties.name+
+   "<br><b>Länge: </b>"+ feature.geometry.coordinates[0]+
+   "<br><b>Breite: </b>"+ feature.geometry.coordinates[1];
+   layer.bindPopup(popupContent);
+  };
+  
+   // Add popup function
+  function popUpFunction2(feature, layer) {
+   var popupContent = "<b>Schutzgebiet: </b>"+feature.properties.OBJEKT;
+   layer.bindPopup(popupContent);
+  };  
+     
+     
+    var overlay_vs_points = L.geoJSON(vs_points, {
+    style: function(feature) {
+        switch (feature.properties.OBJEKT) {
+            case "Eriskircher Ried":
+                return { color: "darkgreen", fillColor: "darkgreen", fillOpacity: 0.2 };
+            case "Konstanzer Bucht des Bodensees":
+                return { color: "midnightblue", fillColor: "midnightblue", fillOpacity: 0.2 };
+			case "Untersee des Bodensees":
+                return { color: "blueviolet", fillColor: "blueviolet", fillOpacity: 0.2 };
+            case "Überlinger See des Bodensees":
+                return { color: "steelblue", fillColor: "steelblue", fillOpacity: 0.2 };
+            case "Bodanrück":
+                return { color: "magenta", fillColor: "magenta", fillOpacity: 0.2 };
+        }
+    },  
+
+    onEachFeature: popUpFunction2,
+
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, orangeMarker);
+    }
+}).addTo(mymap);
+       
+  // Add earthquake points
+ var overlay_bs_points = L.geoJSON(bs_points, {
+  onEachFeature: popUpFunction,
+  pointToLayer: function (feature, latlng) {
+  return L.circleMarker(latlng, orangeMarker);
+   }}).addTo(mymap);  
+   
+           
+  var overlays = {
+  "Ansteuerungspunkte": overlay_bs_points,
+  "Vogelschutzgebiete LUBW": overlay_vs_points
+  };
+ 
+ // Layer control
+  var legend = L.control.layers(basemaps,overlays,{collapsed: false}).addTo(mymap);
+ 
+ 
+  var markBota = L.marker([47.66037697749888, 9.178311524050708]).addTo(mymap);
+  markBota.bindPopup("<h3>Stadthafen Konstanz</h3><p>188 Liegeplätze</p><p>Kran bis 20 t</p><p>Strom und Wasser am Steg</p><p>20x Blaue Flagge</p><a href= 'https://deutsch-schweizerischer-motorboot-club.de/dsmc-v2/?page_id=253'target='_blank'>Mehr</a>");  
+   
+  var markBota = L.marker([47.56352340436692, 9.381607326892622]).addTo(mymap);
+  markBota.bindPopup("<h3>SBS Yachthafen Romanshorn</h3><p>423 Liegeplätze</p><p>Kran bis 20 t</p><p>Strom und Wasser am Steg</p><a href= 'https://www.sscro.com/hafen/'target='_blank'>Mehr</a>");
+    
+  var markBota = L.marker([47.65129644902531, 9.471282614107752]).addTo(mymap);
+  markBota.bindPopup("<h3>WYC Hafen Friedrichshafen</h3><p>270 Liegeplätze</p><p>Kran bis 4 t</p><p>Strom und Wasser am Steg</p><p>10x Blaue Flagge</p><a href= 'https://www.wyc-fn.de/hafen-jollengelaende'target='_blank'>Mehr</a>");
+	
+  var markBota = L.marker([47.75878201206776, 9.18037723074752]).addTo(mymap);
+  markBota.bindPopup("<h3>Osthafen Überlingen</h3><p>356 Liegeplätze</p><p>Travellift bis 9 t</p><p>Wasser am Steg</p><a href= 'https://www.ueberlingen.de/hafenmeisterei-und-hafenverwaltung'target='_blank'>Mehr</a>");
+	
+  var markBota = L.marker([47.50594887650734, 9.725780609771759]).addTo(mymap);
+  markBota.bindPopup("<h3>Sporthafen Bregenz</h3><p>391 Liegeplätze</p><p>Slipanlage mit Seilwinde</p><p>Strom und Wasser am Steg</p><p>11x Blaue Flagge</p><a href= 'https://www.bregenz.gv.at/leben/sport/staedtische-sportanlagen/hafenanlagen/blauer-anker'target='_blank'>Mehr</a>")
+	
+	
+  // Scale
+  var scale = L.control.scale({maxWidth: 150, metric: true, imperial: true}).addTo(mymap);
+  
+  // Leaflet-Ruler measure tool
+  //var ruler = L.control.ruler().addTo(mymap);
+  // L.control.ruler().addTo(mymap);
+    
+	L.control.polylineMeasure().addTo(mymap);
+ </script>
+ 
+</body>
+</html>

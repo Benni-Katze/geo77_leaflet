@@ -1,0 +1,15 @@
+var eq_points= {
+"type": "FeatureCollection",
+"name": "Haefen",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 1, "LAT": 47.7 "LON": 9.2,  "PT_SIZE": 2.888  }, "geometry": { "type": "Point", "coordinates": [ 6.1, 50.8 ] } },
+{ "type": "Feature", "properties": { "fid": 2, "LAT": 50.8, "LON": 6.1,  "PT_SIZE": 4.934  }, "geometry": { "type": "Point", "coordinates": [ 6.1, 50.8 ] } },
+{ "type": "Feature", "properties": { "fid": 3, "LAT": 51.1, "LON": 12.8, "PT_SIZE": 4.934  }, "geometry": { "type": "Point", "coordinates": [ 12.8, 51.1 ] } },
+{ "type": "Feature", "properties": { "fid": 4, "LAT": 51.1, "LON": 12.8, "PT_SIZE": 5.275  }, "geometry": { "type": "Point", "coordinates": [ 12.8, 51.1 ] } },
+{ "type": "Feature", "properties": { "fid": 5, "LAT": 50.8, "LON": 6.1,  "PT_SIZE": 4.252  }, "geometry": { "type": "Point", "coordinates": [ 6.1, 50.8 ] } },
+{ "type": "Feature", "properties": { "fid": 6, "LAT": 51.0, "LON": 12.2, "PT_SIZE": 2.888  }, "geometry": { "type": "Point", "coordinates": [ 12.2, 51.0 ] } },
+{ "type": "Feature", "properties": { "fid": 7, "LAT": 50.0, "LON": 8.3,  "PT_SIZE": 4.934  }, "geometry": { "type": "Point", "coordinates": [ 8.3, 50.0 ] } },
+{ "type": "Feature", "properties": { "fid": 8, "LAT": 48.289, "LON": 9.029, "PT_SIZE": 2.0 }, "geometry": { "type": "Point", "coordinates": [ 9.029, 48.289 ] } }
+]
+}
